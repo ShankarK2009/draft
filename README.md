@@ -16,7 +16,7 @@ For very large comparisons, the changed section is shown as a single replacement
 
 ## Hosting
 
-Serve `index.html` with any static host. For GitHub Pages, publish the repository root.
+Serve `index.html` with any static host.
 
 ## License
 
