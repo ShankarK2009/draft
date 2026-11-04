@@ -96,22 +96,25 @@ function loadHistory(){
  }
  renderHistory();
 }
-function setHistory(items){
- historyItems=limitHistory(items);
+async function changeHistory(change){
  try{
-  if(historyItems.length)localStorage.setItem(HISTORY_KEY,JSON.stringify(historyItems));
-  else localStorage.removeItem(HISTORY_KEY);
-  historyNotice('');
+  await navigator.locks.request(HISTORY_KEY,()=>{
+   const items=limitHistory(change(currentHistory()));
+   if(items.length)localStorage.setItem(HISTORY_KEY,JSON.stringify(items));
+   else localStorage.removeItem(HISTORY_KEY);
+   historyItems=items;
+   historyNotice('');
+   renderHistory();
+  });
  }catch{
   historyNotice('History changes could not be saved on this device.');
  }
- renderHistory();
 }
 function saveComparison(){
  if(!applied.original&&!applied.revised)return;
  if(applied.original.length+applied.revised.length>HISTORY_MAX_CHARS){historyNotice('This comparison is too large to save in History.');return;}
- const others=currentHistory().filter(item=>item.original!==applied.original||item.revised!==applied.revised);
- setHistory([{...applied,savedAt:Date.now()},...others]);
+ const item={...applied,savedAt:Date.now()};
+ return changeHistory(items=>[item,...items.filter(entry=>entry.original!==item.original||entry.revised!==item.revised)]);
 }
 function renderHistory(){
  const fragment=document.createDocumentFragment();
@@ -132,7 +135,7 @@ function renderHistory(){
   };
   remove.textContent='Delete';
   remove.setAttribute('aria-label',`Delete comparison: ${preview.textContent}`);
-  remove.onclick=()=>{setHistory(currentHistory().filter(entry=>entry.original!==item.original||entry.revised!==item.revised));$('history-summary').focus();};
+  remove.onclick=()=>{const result=changeHistory(items=>items.filter(entry=>entry.original!==item.original||entry.revised!==item.revised));$('history-summary').focus();return result;};
   row.append(restore,remove);fragment.append(row);
  }
  $('history-list').replaceChildren(fragment);
@@ -156,10 +159,10 @@ $('swap').onclick=()=>{
  [original.value,revised.value]=[revised.value,original.value];
 };
 $('cancel').onclick=()=>{editor(false);$('toggle').focus();};
-$('update').onclick=()=>{applied={original:$('original').value,revised:$('revised').value};render();saveComparison();editor(false);$('toggle').focus();};
+$('update').onclick=()=>{applied={original:$('original').value,revised:$('revised').value};render();editor(false);$('toggle').focus();return saveComparison();};
 $('clear-history').onclick=()=>{
  if(!confirm('Delete all saved comparisons from this device? This cannot be undone.'))return;
- setHistory([]);$('history-summary').focus();
+ const result=changeHistory(()=>[]);$('history-summary').focus();return result;
 };
 $('reset').onclick=()=>{
  const hasText=applied.original||applied.revised||$('original').value||$('revised').value;
