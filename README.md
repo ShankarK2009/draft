@@ -21,7 +21,7 @@ For very large comparisons, the changed section is shown as a single replacement
 
 ## Checks
 
-Run the diff and history regression tests with Node.js (no installation needed):
+No project dependencies are required; Node.js is required to run the diff and history regression tests:
 
 ```sh
 node --test tests/diff.test.cjs
