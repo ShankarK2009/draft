@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Compare two drafts in one clear reading view. Free, offline text comparison with no account or uploads."><title>Draft / Compare text changes</title>
+<style>
+:root{color-scheme:light;--ink:#202b32;--muted:#607078;--line:#dce3e4;--green:#125c45}*{box-sizing:border-box}body{margin:0;background:#f3f6f5;color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}header{background:#fff;border-bottom:1px solid var(--line);padding:23px max(24px,calc((100vw - 1000px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font-size:25px;font-weight:750;letter-spacing:-1px}.brand span{color:var(--green)}.private{font-size:12px;color:var(--muted)}main{max-width:1000px;margin:40px auto;padding:0 24px}.eyebrow{font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--green);font-weight:750}h1{font-size:34px;line-height:1.2;letter-spacing:-1.2px;margin:10px 0}p{margin:10px 0;color:var(--muted)}.tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:25px 0 18px}button{font:inherit;cursor:pointer;padding:10px 17px;border:1px solid #b9c8c4;border-radius:6px;background:#fff;color:var(--ink)}button.primary{background:var(--green);border-color:var(--green);color:white}button:hover{filter:brightness(.95)}button:focus-visible,textarea:focus-visible{outline:3px solid #80b6a7;outline-offset:3px}.legend{margin-left:auto;display:flex;gap:14px;font-size:12px;align-items:center}ins{background:#d5f3e2;color:#144f36;text-decoration:none;border-bottom:2px solid #399b65}del{background:#fce2df;color:#873c35;text-decoration:line-through} .legend ins,.legend del{padding:2px 6px}.paper{background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 5px 18px #22332d05;overflow:hidden}.paper-head{padding:15px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted)}#reading{padding:36px 52px 48px;white-space:pre-wrap;overflow-wrap:anywhere;font:19px/1.85 Georgia,"Times New Roman",serif;min-height:200px}#reading ins,#reading del{border-radius:2px}#editor{margin-bottom:24px;padding:24px;background:#e8efed;border:1px solid #d3dfdb;border-radius:8px}label{display:block;font-weight:650;margin:0 0 8px}textarea{width:100%;resize:vertical;min-height:180px;padding:15px;border:1px solid #b9c8c4;border-radius:5px;background:#fff;color:var(--ink);font:15px/1.6 Georgia,serif;margin-bottom:18px}.editor-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}#edit-note{font-size:12px}.footer{font-size:12px;margin:16px 0 40px}#notice{font-size:13px;color:#81541f} [hidden]{display:none!important}@media(max-width:600px){header{padding:16px 20px}.private{max-width:145px;text-align:right}main{margin:26px auto;padding:0 16px}h1{font-size:29px}.legend{width:100%;margin-left:0}.paper-head{padding:13px 18px;flex-wrap:wrap}#reading{padding:24px 22px;font-size:18px}#editor{padding:18px}}
+.editor-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.editor-field{min-width:0}.editor-field textarea{display:block;margin-bottom:0}.editor-actions{margin-top:18px}@media(max-width:700px){.editor-fields{grid-template-columns:1fr}}
+.history{margin-bottom:24px;border:1px solid var(--line);border-radius:8px;background:#fff}.history summary{padding:14px 20px;cursor:pointer;font-weight:650}.history summary:focus-visible{outline:3px solid #80b6a7;outline-offset:3px}.history-content{padding:0 20px 16px}.history-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}#history-list{list-style:none;margin:12px 0 0;padding:0}#history-list li{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding:12px 0}.history-restore{flex:1;min-width:0;text-align:left;border:0;padding:4px;background:transparent}.history-preview{display:block;overflow-wrap:anywhere}.history-restore time{display:block;font-size:12px;color:var(--muted);margin-top:4px}#history-note{font-size:13px;color:#81541f}
+</style></head><body>
+<header><div class="brand">draft<span> /</span></div><div class="private">Private by design · works offline</div></header>
+<main><div class="eyebrow">The inline comparison</div><h1>See what changed.</h1><p>Paste two versions of any text to see additions and deletions in one continuous reading view.</p>
+<div class="tools"><button id="toggle" class="primary" aria-expanded="true" aria-controls="editor">Close editor</button><button id="reset">Clear texts</button><div class="legend"><del>Deleted</del><ins>Added</ins><span>Plain = unchanged</span></div></div>
+<section id="editor" aria-label="Edit comparison texts">
+ <div class="editor-fields">
+  <div class="editor-field"><label for="original">Original text</label><textarea id="original" spellcheck="false" placeholder="Paste your original draft here…"></textarea></div>
+  <div class="editor-field"><label for="revised">Revised text</label><textarea id="revised" spellcheck="false" placeholder="Paste your revised draft here…"></textarea></div>
+ </div>
+ <div class="editor-actions"><button id="update" class="primary">Compare texts</button><button id="swap">Swap texts</button><button id="cancel">Cancel</button><span id="edit-note">Edit either draft, then update the comparison.</span></div>
+</section>
+<details id="history" class="history">
+ <summary id="history-summary">History (<span id="history-count">0</span>)</summary>
+ <div class="history-content">
+  <div class="history-head"><span>Up to 20 recent comparisons, saved on this device. Select one to restore it.</span><button id="clear-history" hidden>Clear history</button></div>
+  <p id="history-empty">No saved comparisons yet. Compare two drafts to save them here.</p>
+  <ol id="history-list" aria-label="Saved comparisons"></ol>
+ </div>
+</details>
+<p id="history-note" role="status" hidden></p>
+<p id="notice" role="status" hidden></p><section class="paper" aria-label="Inline text comparison"><div class="paper-head"><span id="wordcounts"></span><span id="status" role="status" aria-live="polite"></span></div><div id="reading"></div></section><p class="footer">Your text stays on this device and is never uploaded. Compared drafts are saved in History; you can delete them at any time.</p></main>
+<script>
+const $=id=>document.getElementById(id);
+let applied={original:'',revised:''};
+const tokenize=s=>s.match(/\r\n|[\r\n]|[^\S\r\n]+|[\p{L}\p{N}\p{M}_]+|[^\s\p{L}\p{N}\p{M}_]/gu)||[];
+function groupChanges(parts){
+ const grouped=[];
+ for(let i=0;i<parts.length;){
+  if(parts[i].type==='same'){grouped.push(parts[i++]);continue;}
+  let removed='',added='';
+  while(i<parts.length){
+   const part=parts[i];
+   if(part.type==='del')removed+=part.text;
+   else if(part.type==='ins')added+=part.text;
+   else if(/^[^\S\r\n]+$/u.test(part.text)&&parts[i+1]&&parts[i+1].type!=='same'){
+    removed+=part.text;added+=part.text;
+   }else break;
+   i++;
+  }
+  if(removed)grouped.push({type:'del',text:removed});
+  if(added)grouped.push({type:'ins',text:added});
+ }
+ return grouped;
+}
+function diff(a,b){
+ const x=tokenize(a),y=tokenize(b);let start=0,end=0;
+ while(start<x.length&&start<y.length&&x[start]===y[start])start++;
+ while(end<x.length-start&&end<y.length-start&&x[x.length-1-end]===y[y.length-1-end])end++;
+ const A=x.slice(start,x.length-end),B=y.slice(start,y.length-end),out=[];
+ const push=(type,text)=>{if(!text)return;const last=out[out.length-1];if(last&&last.type===type)last.text+=text;else out.push({type,text});};
+ push('same',x.slice(0,start).join(''));
+ let coarse=false;
+ if((A.length+1)*(B.length+1)>12000000){push('del',A.join(''));push('ins',B.join(''));coarse=true;}
+ else{
+ const width=B.length+1,table=new Uint32Array((A.length+1)*width);
+ for(let i=A.length-1;i>=0;i--)for(let j=B.length-1;j>=0;j--)table[i*width+j]=A[i]===B[j]?1+table[(i+1)*width+j+1]:Math.max(table[(i+1)*width+j],table[i*width+j+1]);
+ let i=0,j=0;while(i<A.length||j<B.length){if(i<A.length&&j<B.length&&A[i]===B[j]){push('same',A[i]);i++;j++;}else if(i<A.length&&(j===B.length||table[(i+1)*width+j]>=table[i*width+j+1]))push('del',A[i++]);else push('ins',B[j++]);}
+ }
+ if(end)push('same',x.slice(x.length-end).join(''));
+ return {parts:groupChanges(out),coarse};
+}
+const words=s=>s.trim()?s.trim().split(/\s+/u).length:0;
+const HISTORY_KEY='draft.before.history.v1',HISTORY_LIMIT=20,HISTORY_MAX_CHARS=200000;
+let historyItems=[];
+function historyNotice(message){
+ $('history-note').textContent=message;
+ $('history-note').hidden=!message;
+}
+function limitHistory(items){
+ const kept=[];let size=0;
+ for(const item of items){
+  const length=item.original.length+item.revised.length;
+  if(kept.length<HISTORY_LIMIT&&size+length<=HISTORY_MAX_CHARS){kept.push(item);size+=length;}
+ }
+ return kept;
+}
+function readHistory(){
+ const stored=localStorage.getItem(HISTORY_KEY),parsed=stored?JSON.parse(stored):[];
+ if(!Array.isArray(parsed))throw new Error('Invalid history');
+ const valid=parsed.filter(item=>item&&typeof item.original==='string'&&typeof item.revised==='string'&&(item.original||item.revised)&&Number.isFinite(item.savedAt)&&!Number.isNaN(new Date(item.savedAt).getTime()));
+ if(valid.length<parsed.length)historyNotice('Some saved comparisons could not be read.');
+ return limitHistory(valid);
+}
+function currentHistory(){
+ try{return readHistory();}catch{return historyItems;}
+}
+function loadHistory(){
+ try{historyItems=readHistory();}catch{
+  historyNotice('History could not be loaded on this device. You can still compare texts.');
+ }
+ renderHistory();
+}
+async function changeHistory(change){
+ try{
+  await navigator.locks.request(HISTORY_KEY,()=>{
+   const items=limitHistory(change(currentHistory()));
+   if(items.length)localStorage.setItem(HISTORY_KEY,JSON.stringify(items));
+   else localStorage.removeItem(HISTORY_KEY);
+   historyItems=items;
+   historyNotice('');
+   renderHistory();
+  });
+ }catch{
+  historyNotice('History changes could not be saved on this device.');
+ }
+}
+function saveComparison(){
+ if(!applied.original&&!applied.revised)return;
+ if(applied.original.length+applied.revised.length>HISTORY_MAX_CHARS){historyNotice('This comparison is too large to save in History.');return;}
+ const item={...applied,savedAt:Date.now()};
+ return changeHistory(items=>[item,...items.filter(entry=>entry.original!==item.original||entry.revised!==item.revised)]);
+}
+function renderHistory(){
+ const fragment=document.createDocumentFragment();
+ for(const item of historyItems){
+  const row=document.createElement('li'),restore=document.createElement('button'),preview=document.createElement('span'),time=document.createElement('time'),remove=document.createElement('button');
+  const excerpt=text=>text.replace(/\s+/gu,' ').trim().slice(0,80)||'(empty)';
+  preview.className='history-preview';
+  preview.textContent=`${excerpt(item.original)} → ${excerpt(item.revised)}`;
+  time.dateTime=new Date(item.savedAt).toISOString();
+  time.textContent=new Date(item.savedAt).toLocaleString();
+  restore.className='history-restore';
+  restore.setAttribute('aria-label',`Restore comparison: ${preview.textContent}`);
+  restore.append(preview,time);
+  restore.onclick=()=>{
+   const unsaved=!$('editor').hidden&&($('original').value!==applied.original||$('revised').value!==applied.revised);
+   if(unsaved&&!confirm('Replace your unsaved edits with this saved comparison?'))return;
+   applied={original:item.original,revised:item.revised};render();editor(true);
+  };
+  remove.textContent='Delete';
+  remove.setAttribute('aria-label',`Delete comparison: ${preview.textContent}`);
+  remove.onclick=()=>{const result=changeHistory(items=>items.filter(entry=>entry.original!==item.original||entry.revised!==item.revised));$('history-summary').focus();return result;};
+  row.append(restore,remove);fragment.append(row);
+ }
+ $('history-list').replaceChildren(fragment);
+ $('history-count').textContent=String(historyItems.length);
+ $('history-empty').hidden=historyItems.length>0;
+ $('clear-history').hidden=historyItems.length===0;
+}
+function render(){
+ const {parts,coarse}=diff(applied.original,applied.revised),fragment=document.createDocumentFragment();let added=0,removed=0;
+ for(const part of parts){if(part.type==='same')fragment.append(document.createTextNode(part.text));else{const el=document.createElement(part.type);el.textContent=part.text;fragment.append(el);if(part.type==='ins')added++;else removed++;}}
+ $('reading').replaceChildren(fragment);
+ if(!applied.original&&!applied.revised)$('reading').textContent='Paste your original and revised text above, then select Compare texts.';
+ $('wordcounts').textContent=`Original: ${words(applied.original)} words → Revised: ${words(applied.revised)} words`;
+ $('status').textContent=added||removed?`${added} additions · ${removed} deletions`:(applied.original||applied.revised?'No changes':'Ready to compare');
+ $('notice').hidden=!coarse;$('notice').textContent='These texts are large. The changed section is shown as one replacement to keep the comparison responsive.';
+}
+function editor(open){$('editor').hidden=!open;$('toggle').setAttribute('aria-expanded',String(open));$('toggle').textContent=open?'Close editor':'Edit texts';if(open){$('original').value=applied.original;$('revised').value=applied.revised;$('original').focus();}}
+$('toggle').onclick=()=>editor($('editor').hidden);
+$('swap').onclick=()=>{
+ const original=$('original'),revised=$('revised');
+ [original.value,revised.value]=[revised.value,original.value];
+};
+$('cancel').onclick=()=>{editor(false);$('toggle').focus();};
+$('update').onclick=()=>{applied={original:$('original').value,revised:$('revised').value};render();editor(false);$('toggle').focus();return saveComparison();};
+$('clear-history').onclick=()=>{
+ if(!confirm('Delete all saved comparisons from this device? This cannot be undone.'))return;
+ const result=changeHistory(()=>[]);$('history-summary').focus();return result;
+};
+$('reset').onclick=()=>{
+ const hasText=applied.original||applied.revised||$('original').value||$('revised').value;
+ if(hasText&&!confirm('Clear both texts? Saved history will be kept.'))return;
+ applied={original:'',revised:''};render();editor(true);
+};
+window.addEventListener('storage',event=>{
+ if(event.storageArea===localStorage&&(event.key===HISTORY_KEY||event.key===null))loadHistory();
+});
+loadHistory();render();
+</script></body></html>

@@ -1,30 +1,181 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Compare two drafts in one clear reading view. Free, offline text comparison with no account or uploads."><title>Draft / Compare text changes</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="A closer look at your words. Compare two drafts in one reading view, with private, offline text comparison and history saved on your device.">
+<meta name="theme-color" content="#F0F3F7">
+<meta property="og:title" content="Draft / A closer look at your words">
+<meta property="og:description" content="Every addition and deletion, in context. A private text comparison tool that works offline.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://shankark2009.github.io/draft/og.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Draft / A closer look at your words</title>
 <style>
-:root{color-scheme:light;--ink:#202b32;--muted:#607078;--line:#dce3e4;--green:#125c45}*{box-sizing:border-box}body{margin:0;background:#f3f6f5;color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}header{background:#fff;border-bottom:1px solid var(--line);padding:23px max(24px,calc((100vw - 1000px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font-size:25px;font-weight:750;letter-spacing:-1px}.brand span{color:var(--green)}.private{font-size:12px;color:var(--muted)}main{max-width:1000px;margin:40px auto;padding:0 24px}.eyebrow{font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--green);font-weight:750}h1{font-size:34px;line-height:1.2;letter-spacing:-1.2px;margin:10px 0}p{margin:10px 0;color:var(--muted)}.tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:25px 0 18px}button{font:inherit;cursor:pointer;padding:10px 17px;border:1px solid #b9c8c4;border-radius:6px;background:#fff;color:var(--ink)}button.primary{background:var(--green);border-color:var(--green);color:white}button:hover{filter:brightness(.95)}button:focus-visible,textarea:focus-visible{outline:3px solid #80b6a7;outline-offset:3px}.legend{margin-left:auto;display:flex;gap:14px;font-size:12px;align-items:center}ins{background:#d5f3e2;color:#144f36;text-decoration:none;border-bottom:2px solid #399b65}del{background:#fce2df;color:#873c35;text-decoration:line-through} .legend ins,.legend del{padding:2px 6px}.paper{background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 5px 18px #22332d05;overflow:hidden}.paper-head{padding:15px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted)}#reading{padding:36px 52px 48px;white-space:pre-wrap;overflow-wrap:anywhere;font:19px/1.85 Georgia,"Times New Roman",serif;min-height:200px}#reading ins,#reading del{border-radius:2px}#editor{margin-bottom:24px;padding:24px;background:#e8efed;border:1px solid #d3dfdb;border-radius:8px}label{display:block;font-weight:650;margin:0 0 8px}textarea{width:100%;resize:vertical;min-height:180px;padding:15px;border:1px solid #b9c8c4;border-radius:5px;background:#fff;color:var(--ink);font:15px/1.6 Georgia,serif;margin-bottom:18px}.editor-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}#edit-note{font-size:12px}.footer{font-size:12px;margin:16px 0 40px}#notice{font-size:13px;color:#81541f} [hidden]{display:none!important}@media(max-width:600px){header{padding:16px 20px}.private{max-width:145px;text-align:right}main{margin:26px auto;padding:0 16px}h1{font-size:29px}.legend{width:100%;margin-left:0}.paper-head{padding:13px 18px;flex-wrap:wrap}#reading{padding:24px 22px;font-size:18px}#editor{padding:18px}}
-.editor-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.editor-field{min-width:0}.editor-field textarea{display:block;margin-bottom:0}.editor-actions{margin-top:18px}@media(max-width:700px){.editor-fields{grid-template-columns:1fr}}
-.history{margin-bottom:24px;border:1px solid var(--line);border-radius:8px;background:#fff}.history summary{padding:14px 20px;cursor:pointer;font-weight:650}.history summary:focus-visible{outline:3px solid #80b6a7;outline-offset:3px}.history-content{padding:0 20px 16px}.history-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}#history-list{list-style:none;margin:12px 0 0;padding:0}#history-list li{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding:12px 0}.history-restore{flex:1;min-width:0;text-align:left;border:0;padding:4px;background:transparent}.history-preview{display:block;overflow-wrap:anywhere}.history-restore time{display:block;font-size:12px;color:var(--muted);margin-top:4px}#history-note{font-size:13px;color:#81541f}
-</style></head><body>
-<header><div class="brand">draft<span> /</span></div><div class="private">Private by design · works offline</div></header>
-<main><div class="eyebrow">The inline comparison</div><h1>See what changed.</h1><p>Paste two versions of any text to see additions and deletions in one continuous reading view.</p>
-<div class="tools"><button id="toggle" class="primary" aria-expanded="true" aria-controls="editor">Close editor</button><button id="reset">Clear texts</button><div class="legend"><del>Deleted</del><ins>Added</ins><span>Plain = unchanged</span></div></div>
-<section id="editor" aria-label="Edit comparison texts">
- <div class="editor-fields">
-  <div class="editor-field"><label for="original">Original text</label><textarea id="original" spellcheck="false" placeholder="Paste your original draft here…"></textarea></div>
-  <div class="editor-field"><label for="revised">Revised text</label><textarea id="revised" spellcheck="false" placeholder="Paste your revised draft here…"></textarea></div>
- </div>
- <div class="editor-actions"><button id="update" class="primary">Compare texts</button><button id="swap">Swap texts</button><button id="cancel">Cancel</button><span id="edit-note">Edit either draft, then update the comparison.</span></div>
-</section>
-<details id="history" class="history">
- <summary id="history-summary">History (<span id="history-count">0</span>)</summary>
- <div class="history-content">
-  <div class="history-head"><span>Up to 20 recent comparisons, saved on this device. Select one to restore it.</span><button id="clear-history" hidden>Clear history</button></div>
-  <p id="history-empty">No saved comparisons yet. Compare two drafts to save them here.</p>
-  <ol id="history-list" aria-label="Saved comparisons"></ol>
- </div>
-</details>
-<p id="history-note" role="status" hidden></p>
-<p id="notice" role="status" hidden></p><section class="paper" aria-label="Inline text comparison"><div class="paper-head"><span id="wordcounts"></span><span id="status" role="status" aria-live="polite"></span></div><div id="reading"></div></section><p class="footer">Your text stays on this device and is never uploaded. Compared drafts are saved in History; you can delete them at any time.</p></main>
+/* The proof desk: shared tokens for every state of the workspace. */
+:root{
+ color-scheme:light;
+ --ground:#f0f3f7;--surface:#fcfdff;--ink:#1b3047;--muted:#53647a;
+ --rule:#cbd3de;--accent:#2454ce;--accent-hover:#1945ad;--addition:#e4ecff;
+ --font-text:Arial,"Helvetica Neue","Liberation Sans",sans-serif;
+ --font-document:Georgia,"Times New Roman","Liberation Serif",serif;
+ --text-meta:13px;--text-body:16px;--text-document:23px;
+ --display:clamp(3rem,7vw,6rem);--margin:clamp(24px,5.5vw,80px);
+ --ease-out:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:var(--text-body)/1.6 var(--font-text);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+[hidden]{display:none!important}
+button,textarea{font:inherit;color:inherit}
+button,summary{touch-action:manipulation}
+button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:44px;padding:10px 16px;border:1px solid transparent;border-radius:2px;background:transparent;cursor:pointer;line-height:1.4;transition:background-color 150ms,color 150ms,border-color 150ms}
+button:hover{background:#e1e7f0}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);padding:12px 24px}
+button.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+button:focus-visible,summary:focus-visible,a:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.site-header,main,.site-footer{width:100%;max-width:1440px;margin-inline:auto;padding-inline:var(--margin)}
+.site-header{min-height:104px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-bottom:1px solid var(--rule)}
+.identity{display:flex;align-items:center;gap:32px}
+.brand{font:italic 40px/1 var(--font-document);letter-spacing:-2px;white-space:nowrap}
+.brand span{color:var(--accent)}
+.descriptor,.private{font-size:var(--text-meta);color:var(--muted)}
+.private{display:flex;align-items:center;gap:8px}
+.private svg{width:15px;height:15px}
+.intro{display:grid;grid-template-columns:7fr 5fr;gap:24px;padding:48px 0 40px;align-items:end}
+h1{font:400 var(--display)/.98 var(--font-document);letter-spacing:-.045em;margin:0;max-width:11ch}
+.intro-aside{max-width:34ch;padding-bottom:4px}
+.intro-aside p{margin:0;color:var(--muted)}
+.intro[data-has-comparison="true"]{padding-block:32px}
+.intro[data-has-comparison="true"] h1{font-size:40px;line-height:1.12;letter-spacing:-.03em;max-width:none}
+.intro[data-has-comparison="true"] h1 br,.intro[data-has-comparison="true"] .proof-example{display:none}
+.proof-example{margin-top:24px}
+.proof-example .caption{display:block;font-size:var(--text-meta);color:var(--muted);margin-bottom:8px}
+.proof-example p{font:19.2px/1.5 var(--font-document);color:var(--ink)}
+ins{background:var(--addition);color:var(--accent-hover);text-decoration:none;box-decoration-break:clone;-webkit-box-decoration-break:clone;border-bottom:1px solid currentColor}
+del{color:var(--muted);text-decoration-thickness:1px;text-decoration-color:currentColor}
+.workspace{border-top:1px solid var(--ink)}
+.workspace-head{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px;padding-block:12px}
+h2{font-size:var(--text-body);font-weight:400;margin:0;line-height:1.4}
+.workspace-tools{display:flex;align-items:center;gap:8px}
+.workspace-tools button{font-size:var(--text-meta);color:var(--muted);padding-inline:12px}
+.workspace-tools #toggle{color:var(--ink)}
+.editor-fields{display:grid;grid-template-columns:7fr 5fr;gap:24px}
+.editor-field{min-width:0}
+.field-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:12px}
+label{font-size:var(--text-meta);font-weight:600}
+.input-count{font-size:var(--text-meta);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+textarea{display:block;width:100%;min-height:208px;padding:24px;resize:vertical;border:1px solid var(--rule);border-radius:0;background:var(--surface);font:19.2px/1.65 var(--font-document)}
+textarea::placeholder{color:var(--muted);opacity:1}
+.editor-command{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:24px 0 0}
+.editor-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 0 24px}
+.editor-actions #cancel{color:var(--muted);font-size:var(--text-meta);margin-left:auto}
+#edit-note{font-size:var(--text-meta);color:var(--muted)}
+.inline-button{min-height:32px;padding:0 4px;text-decoration:underline;text-underline-offset:4px;font-size:inherit}
+.reading-section{padding-top:24px}
+.reading-toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:16px}
+.legend{display:flex;gap:16px;align-items:center;font-size:var(--text-meta);color:var(--muted)}
+.legend ins{padding:0 3px}
+.paper{margin-inline:-24px;background:var(--surface);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.paper-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px 24px;padding:16px 24px;border-bottom:1px solid var(--rule);font-size:var(--text-meta);color:var(--muted);font-variant-numeric:tabular-nums}
+#status{color:var(--ink)}
+#reading{position:relative;white-space:pre-wrap;overflow-wrap:anywhere;font:var(--text-document)/1.85 var(--font-document);max-width:64ch;margin:auto;padding:40px 48px 48px;min-height:232px}
+#reading del+ins{margin-inline-start:.12em}
+.proof-register{position:absolute;left:16px;top:48px;width:16px;height:24px;color:var(--accent)}
+.proof-register::before{content:'';position:absolute;left:4px;top:2px;width:8px;height:8px;border-top:1.5px solid;border-left:1.5px solid;transform:rotate(45deg)}
+.proof-register::after{content:'';position:absolute;left:0;top:18px;width:16px;height:1.5px;background:currentColor;transform-origin:left}
+#reading:empty{display:none}
+.empty-reading{padding:40px 48px 48px;min-height:232px;max-width:72ch;margin:auto}
+.empty-reading p{color:var(--muted);max-width:48ch;margin:8px 0 16px}
+.empty-reading .empty-title{font:28px/1.3 var(--font-document);letter-spacing:-.02em;color:var(--ink);margin:0}
+.empty-reading button{padding-left:0;justify-content:start;font-size:var(--text-meta);text-decoration:underline;text-underline-offset:5px}
+.history{margin-top:40px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.history summary{cursor:pointer;min-height:64px;display:flex;align-items:center;gap:12px;list-style:none;padding:16px 0;font-size:var(--text-body)}
+.history summary::-webkit-details-marker{display:none}
+.history summary::before{content:'+';width:20px;font-size:23px;line-height:1}
+.history[open] summary::before{content:'−'}
+.history-meta{margin-left:auto;font-size:var(--text-meta);color:var(--muted)}
+.history-content{padding:0 0 24px 32px}
+.history-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:var(--text-meta);color:var(--muted)}
+.history-head>span{max-width:64ch}
+#history-empty{font-size:var(--text-meta);color:var(--muted);margin:16px 0 0;max-width:60ch}
+#history-list{list-style:none;margin:16px 0 0;padding:0}
+#history-list:empty{margin:0}
+#history-list li{display:flex;align-items:center;gap:16px;padding:12px 0;border-top:1px solid var(--rule)}
+.history-restore{display:block;flex:1;min-width:0;text-align:left;padding:8px;line-height:1.5}
+.history-preview{display:block;overflow-wrap:anywhere;max-width:75ch}
+.history-restore time{display:block;font-size:var(--text-meta);color:var(--muted);margin-top:4px}
+#history-list li>button:last-child,#clear-history{font-size:var(--text-meta);color:var(--muted)}
+.notice{font-size:var(--text-meta);color:var(--ink);border-left:2px solid var(--accent);padding:8px 16px;margin:16px 0;max-width:70ch}
+.site-footer{display:flex;justify-content:space-between;gap:24px;padding-top:32px;padding-bottom:40px;font-size:var(--text-meta);color:var(--muted)}
+.site-footer p{margin:0;max-width:48ch}
+.site-footer p:last-child{text-align:right}
+.noscript{padding:16px;border:1px solid var(--rule);max-width:66ch}
+.skip-link{position:absolute;left:24px;top:-100px;background:var(--surface);color:var(--ink);padding:8px 16px;z-index:2}
+.skip-link:focus{top:16px}
+@media(prefers-reduced-motion:no-preference){.proof-register{animation:proof-register 800ms var(--ease-out) both}.proof-register::after{animation:proof-rule 800ms var(--ease-out) both}@keyframes proof-register{from{transform:translateX(-12px);opacity:.35}to{transform:translateX(0);opacity:1}}@keyframes proof-rule{from{transform:scaleX(0)}to{transform:scaleX(1)}}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media(min-width:1800px){.intro{padding-top:64px;padding-bottom:56px}textarea{min-height:240px}}
+@media(max-width:900px){.descriptor{display:none}.intro{padding-block:40px;grid-template-columns:7fr 5fr}.intro-aside{font-size:14px}.proof-example p{font-size:16px}.proof-example{margin-top:16px}.editor-fields{gap:16px}textarea{padding:20px}.paper{margin-inline:-16px}#reading,.empty-reading{padding:32px}.proof-register{left:8px}}
+@media(max-width:600px){
+ :root{--margin:24px;--text-document:20px;--display:clamp(40px,12vw,56px)}
+ .site-header{min-height:80px;gap:16px}.brand{font-size:36px}.private{max-width:160px;line-height:1.5;font-size:12px}.private svg{display:none}
+ .intro{padding:24px 0;grid-template-columns:1fr;gap:16px}.intro-aside{max-width:36ch;font-size:14px;padding:0}.proof-example{margin-top:12px}.proof-example .caption{display:none}.proof-example p{font-size:19.2px}.intro[data-has-comparison="true"]{padding-block:24px}.intro[data-has-comparison="true"] h1{font-size:28px}.intro[data-has-comparison="true"] .intro-aside{display:none}
+ .workspace-head{min-height:64px;gap:8px}.workspace-tools{gap:0}.workspace-tools button{padding-inline:8px}.workspace-head h2{font-size:14px}
+ .editor-fields{grid-template-columns:1fr;gap:20px}.field-head{margin-bottom:8px}textarea{min-height:128px;padding:16px;font-size:18px}
+ .editor-command{gap:8px 16px;padding-top:20px}.editor-command .primary{padding:12px 18px}.editor-actions{padding:8px 0 16px;gap:4px}.editor-actions #swap{padding-inline:0}.editor-actions #cancel{padding-inline:8px}
+ .reading-section{padding-top:16px}.reading-toolbar{align-items:start;flex-direction:column;gap:8px}.legend{gap:16px}.paper{margin-inline:-8px}.paper-head{padding:16px;gap:8px;font-size:12px}
+ #reading,.empty-reading{padding:24px;min-height:200px}.proof-register{left:5px;top:32px;width:12px}.proof-register::before{left:2px;width:7px;height:7px}.proof-register::after{width:12px}.empty-reading .empty-title{font-size:25px}.empty-reading p{font-size:14px}.history{margin-top:32px}.history-content{padding-left:0}.history-head{gap:8px}.history-meta{font-size:12px}#history-list li{gap:4px}.history-restore{font-size:14px;padding:8px 4px}.site-footer{flex-direction:column;gap:8px;padding-top:24px;padding-bottom:32px}.site-footer p:last-child{text-align:left}
+}
+@media(max-width:359px){:root{--margin:20px}.workspace-head{align-items:start;flex-direction:column;gap:0;padding-top:16px}.workspace-tools{margin-left:-8px}.history-meta{max-width:110px;text-align:right}}
+@media(forced-colors:active){button,textarea{border:1px solid ButtonText}button.primary{background:Highlight;color:HighlightText;border-color:Highlight}.paper{border:1px solid CanvasText}ins{color:LinkText;background:Canvas;border-bottom:2px solid LinkText}del{color:CanvasText}.brand span{color:LinkText}.notice{border-color:CanvasText}}
+@media print{.site-header,.intro,.workspace,.history,.site-footer,.reading-toolbar,#history-note,.proof-register{display:none}body{background:white;color:black}main{padding:0;max-width:none}.paper{margin:0;border:0}.paper-head{padding-inline:0}#reading{max-width:none;padding:24px 0}ins{color:black;border-bottom:2px solid black}del{color:black}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#workspace">Skip to comparison workspace</a>
+<header class="site-header">
+ <div class="identity"><div class="brand" aria-label="Draft">draft<span>/</span></div><span class="descriptor">A private text comparison tool</span></div>
+ <div class="private"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg><span>On your device. Offline, too.</span></div>
+</header>
+<main>
+ <section id="page-intro" class="intro" aria-labelledby="page-title">
+  <h1 id="page-title">A closer look<br> at your words.</h1>
+  <div class="intro-aside"><p>Compare two drafts in one reading view. Every addition and deletion, in context.</p><div class="proof-example" aria-label="Example of inline changes"><span class="caption">A small example</span><p><del>The best</del> <ins>Good</ins> writing takes revision.</p></div></div>
+ </section>
+ <noscript><p class="noscript">Draft needs JavaScript to compare text on your device. Enable JavaScript, then paste your two drafts below. No text is uploaded.</p></noscript>
+ <section id="workspace" class="workspace" aria-labelledby="workspace-title">
+  <div class="workspace-head"><h2 id="workspace-title">Your drafts</h2><div class="workspace-tools"><button id="toggle" aria-expanded="true" aria-controls="editor">Close editor</button><button id="reset">Clear texts</button></div></div>
+  <section id="editor" aria-label="Edit comparison texts">
+   <div class="editor-fields">
+    <div class="editor-field"><div class="field-head"><label for="original">Original text</label><span id="original-count" class="input-count">0 words</span></div><textarea id="original" spellcheck="false" placeholder="Paste the first version here…" aria-describedby="original-count"></textarea></div>
+    <div class="editor-field"><div class="field-head"><label for="revised">Revised text</label><span id="revised-count" class="input-count">0 words</span></div><textarea id="revised" spellcheck="false" placeholder="Paste the next version here…" aria-describedby="revised-count"></textarea></div>
+   </div>
+   <div class="editor-command"><button id="update" class="primary">Compare texts<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button><span id="edit-note">or <button id="example" class="inline-button">try an example</button></span></div>
+   <div class="editor-actions"><button id="swap"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/></svg>Swap texts</button><button id="cancel">Cancel</button></div>
+  </section>
+ </section>
+ <section class="reading-section" aria-labelledby="comparison-title">
+  <div class="reading-toolbar"><h2 id="comparison-title">The comparison</h2><div class="legend" aria-label="Change key"><del>Deleted</del><ins>Added</ins><span>Unchanged</span></div></div>
+  <p id="notice" class="notice" role="status" hidden></p>
+  <section class="paper" aria-label="Inline text comparison">
+   <div class="paper-head"><span id="wordcounts"></span><span id="status" role="status" aria-live="polite"></span></div>
+   <div id="reading"></div>
+   <div id="empty-reading" class="empty-reading"><p class="empty-title">Your revisions will appear here.</p><p>Paste both versions above, then compare them to read every change in context.</p><button id="empty-example">Try an example<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button></div>
+  </section>
+ </section>
+ <details id="history" class="history">
+  <summary id="history-summary"><span>History (<span id="history-count">0</span>)</span><span class="history-meta">Saved on this device</span></summary>
+  <div class="history-content">
+   <div class="history-head"><span>Up to 20 recent comparisons, saved on this device. Select one to restore it.</span><button id="clear-history" hidden>Clear history</button></div>
+   <p id="history-empty">No saved comparisons yet. Compare two drafts to save them here.</p>
+   <ol id="history-list" aria-label="Saved comparisons"></ol>
+  </div>
+ </details>
+ <p id="history-note" class="notice" role="status" hidden></p>
+</main>
+<footer class="site-footer"><p>A little space for your next draft.</p><p>Your text stays on this device.<br>No uploads, accounts, or analytics.</p></footer>
 <script>
 const $=id=>document.getElementById(id);
 let applied={original:'',revised:''};
@@ -145,19 +296,40 @@ function renderHistory(){
 }
 function render(){
  const {parts,coarse}=diff(applied.original,applied.revised),fragment=document.createDocumentFragment();let added=0,removed=0;
+ if(applied.original||applied.revised){const mark=document.createElement('span');mark.className='proof-register';mark.setAttribute('aria-hidden','true');fragment.append(mark);}
  for(const part of parts){if(part.type==='same')fragment.append(document.createTextNode(part.text));else{const el=document.createElement(part.type);el.textContent=part.text;fragment.append(el);if(part.type==='ins')added++;else removed++;}}
  $('reading').replaceChildren(fragment);
- if(!applied.original&&!applied.revised)$('reading').textContent='Paste your original and revised text above, then select Compare texts.';
+ $('empty-reading').hidden=Boolean(applied.original||applied.revised);
+ $('page-intro').setAttribute('data-has-comparison',String(Boolean(applied.original||applied.revised)));
  $('wordcounts').textContent=`Original: ${words(applied.original)} words → Revised: ${words(applied.revised)} words`;
  $('status').textContent=added||removed?`${added} additions · ${removed} deletions`:(applied.original||applied.revised?'No changes':'Ready to compare');
  $('notice').hidden=!coarse;$('notice').textContent='These texts are large. The changed section is shown as one replacement to keep the comparison responsive.';
 }
-function editor(open){$('editor').hidden=!open;$('toggle').setAttribute('aria-expanded',String(open));$('toggle').textContent=open?'Close editor':'Edit texts';if(open){$('original').value=applied.original;$('revised').value=applied.revised;$('original').focus();}}
+function updateInputCounts(){
+ for(const id of ['original','revised']){
+  const count=words($(id).value);
+  $(id+'-count').textContent=`${count} ${count===1?'word':'words'}`;
+ }
+}
+function editor(open){$('editor').hidden=!open;$('toggle').setAttribute('aria-expanded',String(open));$('toggle').textContent=open?'Close editor':'Edit texts';if(open){$('original').value=applied.original;$('revised').value=applied.revised;updateInputCounts();$('original').focus();}}
 $('toggle').onclick=()=>editor($('editor').hidden);
 $('swap').onclick=()=>{
  const original=$('original'),revised=$('revised');
  [original.value,revised.value]=[revised.value,original.value];
+ updateInputCounts();
 };
+function loadExample(){
+ const hasText=applied.original||applied.revised||$('original').value||$('revised').value;
+ if(hasText&&!confirm('Replace the current drafts with an example? Saved history will be kept.'))return;
+ editor(true);
+ $('original').value="The best writing isn't written all at once. It takes shape one careful revision at a time.";
+ $('revised').value="Good writing isn't written all at once. It takes shape one thoughtful revision at a time.";
+ updateInputCounts();
+}
+$('example').onclick=loadExample;
+$('empty-example').onclick=loadExample;
+$('original').oninput=updateInputCounts;
+$('revised').oninput=updateInputCounts;
 $('cancel').onclick=()=>{editor(false);$('toggle').focus();};
 $('update').onclick=()=>{applied={original:$('original').value,revised:$('revised').value};render();editor(false);$('toggle').focus();return saveComparison();};
 $('clear-history').onclick=()=>{
