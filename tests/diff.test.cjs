@@ -21,7 +21,7 @@ function createStorage(items=[]){
  return {data,locks:createLocks(),getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,value),removeItem:key=>data.delete(key)};
 }
 function createApp(storage=createStorage()){
- const elements=new Map();
+ const elements=new Map(),listeners=new Map();
  const app={storage,confirmed:true,element:id=>elements.get(id)};
  function node(tag){
   let text='';
@@ -38,7 +38,9 @@ function createApp(storage=createStorage()){
   const element=node(match[1]);element.hidden=/\bhidden\b/u.test(match[2]);elements.set(match[3],element);
  }
  const document={getElementById:app.element,createElement:node,createDocumentFragment:()=>node('#fragment'),createTextNode:text=>{const result=node('#text');result.textContent=text;return result;}};
- app.diff=runInNewContext(`${source}\ndiff`,{document,localStorage:storage,navigator:{locks:storage.locks},confirm:()=>app.confirmed});
+ const window={addEventListener:(type,listener)=>listeners.set(type,listener)};
+ app.diff=runInNewContext(`${source}\ndiff`,{document,window,localStorage:storage,navigator:{locks:storage.locks},confirm:()=>app.confirmed});
+ app.storageEvent=(key=historyKey,storageArea=storage)=>listeners.get('storage')?.({key,storageArea});
  app.click=id=>app.element(id).onclick();
  app.compare=(original,revised='revision')=>{
   if(app.element('editor').hidden)app.click('toggle');
@@ -137,6 +139,42 @@ test('history saves and deletes against the latest storage from other tabs',asyn
  assert.deepEqual(saved(storage).map(item=>item.original),['second']);
  await second.rows()[0].children[1].onclick();
  assert.deepEqual(saved(storage),[]);
+});
+
+test('storage events refresh history after another tab saves, deletes, or clears',async()=>{
+ const storage=createStorage([entry('saved')]),first=createApp(storage),second=createApp(storage);
+ second.element('history').open=true;
+ second.element('original').value='unsaved original';
+ second.element('revised').value='unsaved revision';
+ const reading=second.element('reading').textContent;
+ await first.compare('new');second.storageEvent();
+ assert.equal(second.rows().length,2);
+ assert.equal(second.element('history-count').textContent,'2');
+ await first.rows()[0].children[1].onclick();second.storageEvent();
+ assert.equal(second.rows().length,1);
+ assert.match(second.rows()[0].children[0].textContent,/^saved →/u);
+ assert.equal(second.element('history-count').textContent,'1');
+ await first.click('clear-history');second.storageEvent();
+ assert.equal(second.rows().length,0);
+ assert.equal(second.element('history-count').textContent,'0');
+ assert.equal(second.element('history-empty').hidden,false);
+ assert.equal(second.element('clear-history').hidden,true);
+ assert.equal(second.element('history').open,true);
+ assert.equal(second.element('original').value,'unsaved original');
+ assert.equal(second.element('revised').value,'unsaved revision');
+ assert.equal(second.element('reading').textContent,reading);
+});
+
+test('history refreshes on storage clear and ignores unrelated storage events',()=>{
+ const storage=createStorage([entry('saved')]),app=createApp(storage);
+ storage.data.clear();
+ app.storageEvent('unrelated');
+ assert.equal(app.rows().length,1);
+ app.storageEvent(historyKey,createStorage());
+ assert.equal(app.rows().length,1);
+ app.storageEvent(null);
+ assert.equal(app.rows().length,0);
+ assert.equal(app.element('history-count').textContent,'0');
 });
 
 test('overlapping tab saves retain both comparisons',async()=>{

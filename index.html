@@ -169,5 +169,8 @@ $('reset').onclick=()=>{
  if(hasText&&!confirm('Clear both texts? Saved history will be kept.'))return;
  applied={original:'',revised:''};render();editor(true);
 };
+window.addEventListener('storage',event=>{
+ if(event.storageArea===localStorage&&(event.key===HISTORY_KEY||event.key===null))loadHistory();
+});
 loadHistory();render();
 </script></body></html>
