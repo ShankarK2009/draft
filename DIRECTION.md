@@ -47,7 +47,7 @@ Grid       12 cols, gutter 24px, margin clamp(24px, 5.5vw, 80px)
 Unit       8px
 Paper      #F0F3F7  Ink #1B3047  Muted #53647A  Rule #CBD3DE
 Accent     #2454CE, under 5% of pixels, primary action and additions
-Signature  Changed phrases settle into the reading view, 800ms, once
+Signature  Margin proof mark registers beside the comparison, 800ms, once
 Motion off Final text visible immediately; no movement
 ```
 
@@ -61,7 +61,7 @@ A single workspace, with three steps: enter two drafts, read the comparison, rev
 
 ## Signature storyboard
 
-Technique: proof ink appearing on the document. Trigger: compare the two drafts. Frame 0: unchanged and deleted words are in place; new fragments are at 35% opacity. Frame 400: the addition ink strengthens. Frame 800: final marks at full opacity. Each fragment uses the same timing with no per-word stagger. The planned 8px travel was removed so inline marks retain natural multi-line wrapping and exact text whitespace; only opacity animates. Easing cubic-bezier(.16,1,.3,1). Reduced motion: animation disabled, complete final document. No loop, pointer follower, or scroll motion. Hover feedback is 150ms.
+Technique: a proofreader's insertion mark registering at the document margin. Trigger: render a comparison. Frame 0: all draft text is fully opaque and in place; a small cobalt margin mark sits 12px outside its final position with a short rule collapsed. Frame 400: the mark slides into registration as the rule extends. Frame 800: the static proof mark is in place. Transform and opacity only, easing cubic-bezier(.16,1,.3,1). Reduced motion: final mark and complete document, no animation. No loop, per-word wrappers, pointer follower, or scroll motion. Hover feedback is 150ms. The initial opacity-only fragment animation was replaced after independent critique; the final gesture preserves natural wrapping and exact text whitespace.
 
 ## Voice
 
@@ -75,10 +75,14 @@ A thoughtful copy editor: clear about the task, brief about the tool, protective
 - Illustrative proof: `A small example` / `The best` (deleted) `Good` (added) `writing takes revision.`
 - Workspace: `Your drafts`; `Close editor` / `Edit texts`; `Clear texts`.
 - Labels: `Original text`, `Revised text`; live `0 words` counts. Placeholders: `Paste the first version here…`, `Paste the next version here…`.
-- Actions: `Compare texts`, `Swap texts`, `Cancel`; hint: `Or try an example`.
+- Actions: `Compare texts` leads the editor; hint: `or try an example`; `Swap texts` and `Cancel` share a row below the fields.
 - Reader: `The comparison`; legend `Deleted`, `Added`, `Unchanged`; exact original/revised word counts; `Ready to compare`, `No changes`, dynamic addition/deletion counts.
 - Empty result: `Your revisions will appear here.` / `Paste both versions above, then compare them to read every change in context.` / `Try an example`.
 - Sample drafts: `The best writing isn't written all at once. It takes shape one careful revision at a time.` and `Good writing isn't written all at once. It takes shape one thoughtful revision at a time.`
 - History: `History (0)`; `Up to 20 recent comparisons, saved on this device. Select one to restore it.`; `No saved comparisons yet. Compare two drafts to save them here.`; `Clear history`; exact local timestamps, draft previews, `Delete`.
 - Footer: `A little space for your next draft.` / `Your text stays on this device. No uploads, accounts, or analytics.`
 - Existing storage-error, large-text and destructive-confirmation copy retained. No network loading or server permission states exist; comparison is synchronous and local. Zero/one-sided/unchanged/large inputs and unavailable storage are supported states, not simulated routes. URL state is deliberately omitted because drafts are private and must never enter address bars or logs.
+
+## Final interaction refinements
+
+After a comparison, the intro compacts to 40px desktop / 28px phone and the illustrative proof disappears, giving the user's real text priority. Clearing restores the initial introduction. The reader is capped at 64ch including padding. Adjacent deleted/added phrases have `.12em` visual spacing without inserting characters. These are deliberate exceptions to the initial display-scale rule in a mid-use application: the work should dominate the hundredth session.
