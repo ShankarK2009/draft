@@ -12,7 +12,7 @@
   <div class="editor-field"><label for="original">Original text</label><textarea id="original" spellcheck="false" placeholder="Paste your original draft here…"></textarea></div>
   <div class="editor-field"><label for="revised">Revised text</label><textarea id="revised" spellcheck="false" placeholder="Paste your revised draft here…"></textarea></div>
  </div>
- <div class="editor-actions"><button id="update" class="primary">Compare texts</button><button id="cancel">Cancel</button><span id="edit-note">Edit either draft, then update the comparison.</span></div>
+ <div class="editor-actions"><button id="update" class="primary">Compare texts</button><button id="swap">Swap texts</button><button id="cancel">Cancel</button><span id="edit-note">Edit either draft, then update the comparison.</span></div>
 </section>
 <p id="notice" role="status" hidden></p><section class="paper" aria-label="Inline text comparison"><div class="paper-head"><span id="wordcounts"></span><span id="status" role="status" aria-live="polite"></span></div><div id="reading"></div></section><p class="footer">Your text stays in this browser tab and is never uploaded or saved. Refreshing or closing the page clears it.</p></main>
 <script>
@@ -67,6 +67,10 @@ function render(){
 }
 function editor(open){$('editor').hidden=!open;$('toggle').setAttribute('aria-expanded',String(open));$('toggle').textContent=open?'Close editor':'Edit texts';if(open){$('original').value=applied.original;$('revised').value=applied.revised;$('original').focus();}}
 $('toggle').onclick=()=>editor($('editor').hidden);
+$('swap').onclick=()=>{
+ const original=$('original'),revised=$('revised');
+ [original.value,revised.value]=[revised.value,original.value];
+};
 $('cancel').onclick=()=>{editor(false);$('toggle').focus();};
 $('update').onclick=()=>{applied={original:$('original').value,revised:$('revised').value};render();editor(false);$('toggle').focus();};
 $('reset').onclick=()=>{
