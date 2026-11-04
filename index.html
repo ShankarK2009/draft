@@ -68,7 +68,7 @@ label{font-size:var(--text-meta);font-weight:600}
 .input-count{font-size:var(--text-meta);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 textarea{display:block;width:100%;min-height:208px;padding:24px;resize:vertical;border:1px solid var(--rule);border-radius:0;background:var(--surface);font:19.2px/1.65 var(--font-document)}
 textarea::placeholder{color:var(--muted);opacity:1}
-.editor-command{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:0 0 24px}
+.editor-command{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:24px 0 0}
 .editor-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 0 24px}
 .editor-actions #cancel{color:var(--muted);font-size:var(--text-meta);margin-left:auto}
 #edit-note{font-size:var(--text-meta);color:var(--muted)}
@@ -124,13 +124,13 @@ textarea::placeholder{color:var(--muted);opacity:1}
  .intro{padding:24px 0;grid-template-columns:1fr;gap:16px}.intro-aside{max-width:36ch;font-size:14px;padding:0}.proof-example{margin-top:12px}.proof-example .caption{display:none}.proof-example p{font-size:19.2px}.intro[data-has-comparison="true"]{padding-block:24px}.intro[data-has-comparison="true"] h1{font-size:28px}.intro[data-has-comparison="true"] .intro-aside{display:none}
  .workspace-head{min-height:64px;gap:8px}.workspace-tools{gap:0}.workspace-tools button{padding-inline:8px}.workspace-head h2{font-size:14px}
  .editor-fields{grid-template-columns:1fr;gap:20px}.field-head{margin-bottom:8px}textarea{min-height:128px;padding:16px;font-size:18px}
- .editor-command{gap:8px 16px;padding-bottom:20px}.editor-command .primary{padding:12px 18px}.editor-actions{padding:8px 0 16px;gap:4px}.editor-actions #swap{padding-inline:0}.editor-actions #cancel{padding-inline:8px}
+ .editor-command{gap:8px 16px;padding-top:20px}.editor-command .primary{padding:12px 18px}.editor-actions{padding:8px 0 16px;gap:4px}.editor-actions #swap{padding-inline:0}.editor-actions #cancel{padding-inline:8px}
  .reading-section{padding-top:16px}.reading-toolbar{align-items:start;flex-direction:column;gap:8px}.legend{gap:16px}.paper{margin-inline:-8px}.paper-head{padding:16px;gap:8px;font-size:12px}
  #reading,.empty-reading{padding:24px;min-height:200px}.proof-register{left:5px;top:32px;width:12px}.proof-register::before{left:2px;width:7px;height:7px}.proof-register::after{width:12px}.empty-reading .empty-title{font-size:25px}.empty-reading p{font-size:14px}.history{margin-top:32px}.history-content{padding-left:0}.history-head{gap:8px}.history-meta{font-size:12px}#history-list li{gap:4px}.history-restore{font-size:14px;padding:8px 4px}.site-footer{flex-direction:column;gap:8px;padding-top:24px;padding-bottom:32px}.site-footer p:last-child{text-align:left}
 }
 @media(max-width:359px){:root{--margin:20px}.workspace-head{align-items:start;flex-direction:column;gap:0;padding-top:16px}.workspace-tools{margin-left:-8px}.history-meta{max-width:110px;text-align:right}}
 @media(forced-colors:active){button,textarea{border:1px solid ButtonText}button.primary{background:Highlight;color:HighlightText;border-color:Highlight}.paper{border:1px solid CanvasText}ins{color:LinkText;background:Canvas;border-bottom:2px solid LinkText}del{color:CanvasText}.brand span{color:LinkText}.notice{border-color:CanvasText}}
-@media print{.site-header,.intro,.workspace,.history,.site-footer,.reading-toolbar,.notice,.proof-register{display:none}body{background:white;color:black}main{padding:0;max-width:none}.paper{margin:0;border:0}.paper-head{padding-inline:0}#reading{max-width:none;padding:24px 0}ins{color:black;border-bottom:2px solid black}del{color:black}}
+@media print{.site-header,.intro,.workspace,.history,.site-footer,.reading-toolbar,#history-note,.proof-register{display:none}body{background:white;color:black}main{padding:0;max-width:none}.paper{margin:0;border:0}.paper-head{padding-inline:0}#reading{max-width:none;padding:24px 0}ins{color:black;border-bottom:2px solid black}del{color:black}}
 </style>
 </head>
 <body>
@@ -148,11 +148,11 @@ textarea::placeholder{color:var(--muted);opacity:1}
  <section id="workspace" class="workspace" aria-labelledby="workspace-title">
   <div class="workspace-head"><h2 id="workspace-title">Your drafts</h2><div class="workspace-tools"><button id="toggle" aria-expanded="true" aria-controls="editor">Close editor</button><button id="reset">Clear texts</button></div></div>
   <section id="editor" aria-label="Edit comparison texts">
-   <div class="editor-command"><button id="update" class="primary">Compare texts<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button><span id="edit-note">or <button id="example" class="inline-button">try an example</button></span></div>
    <div class="editor-fields">
     <div class="editor-field"><div class="field-head"><label for="original">Original text</label><span id="original-count" class="input-count">0 words</span></div><textarea id="original" spellcheck="false" placeholder="Paste the first version here…" aria-describedby="original-count"></textarea></div>
     <div class="editor-field"><div class="field-head"><label for="revised">Revised text</label><span id="revised-count" class="input-count">0 words</span></div><textarea id="revised" spellcheck="false" placeholder="Paste the next version here…" aria-describedby="revised-count"></textarea></div>
    </div>
+   <div class="editor-command"><button id="update" class="primary">Compare texts<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button><span id="edit-note">or <button id="example" class="inline-button">try an example</button></span></div>
    <div class="editor-actions"><button id="swap"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/></svg>Swap texts</button><button id="cancel">Cancel</button></div>
   </section>
  </section>
