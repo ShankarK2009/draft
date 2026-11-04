@@ -19,6 +19,25 @@
 const $=id=>document.getElementById(id);
 let applied={original:'',revised:''};
 const tokenize=s=>s.match(/\r\n|\n|[^\S\r\n]+|[\p{L}\p{N}\p{M}_]+|[^\s\p{L}\p{N}\p{M}_]/gu)||[];
+function groupChanges(parts){
+ const grouped=[];
+ for(let i=0;i<parts.length;){
+  if(parts[i].type==='same'){grouped.push(parts[i++]);continue;}
+  let removed='',added='';
+  while(i<parts.length){
+   const part=parts[i];
+   if(part.type==='del')removed+=part.text;
+   else if(part.type==='ins')added+=part.text;
+   else if(/^[^\S\r\n]+$/u.test(part.text)&&parts[i+1]&&parts[i+1].type!=='same'){
+    removed+=part.text;added+=part.text;
+   }else break;
+   i++;
+  }
+  if(removed)grouped.push({type:'del',text:removed});
+  if(added)grouped.push({type:'ins',text:added});
+ }
+ return grouped;
+}
 function diff(a,b){
  const x=tokenize(a),y=tokenize(b);let start=0,end=0;
  while(start<x.length&&start<y.length&&x[start]===y[start])start++;
@@ -34,7 +53,7 @@ function diff(a,b){
  let i=0,j=0;while(i<A.length||j<B.length){if(i<A.length&&j<B.length&&A[i]===B[j]){push('same',A[i]);i++;j++;}else if(i<A.length&&(j===B.length||table[(i+1)*width+j]>=table[i*width+j+1]))push('del',A[i++]);else push('ins',B[j++]);}
  }
  if(end)push('same',x.slice(x.length-end).join(''));
- return {parts:out,coarse};
+ return {parts:groupChanges(out),coarse};
 }
 const words=s=>s.trim()?s.trim().split(/\s+/u).length:0;
 function render(){
