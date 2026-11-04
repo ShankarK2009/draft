@@ -3,10 +3,44 @@ const assert=require('node:assert/strict');
 const {readFileSync}=require('node:fs');
 const {runInNewContext}=require('node:vm');
 
-// Exercise the actual diff code while keeping index.html usable as one offline file.
+// Run the page's actual script with just the DOM and storage methods it uses.
 const html=readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
-const source=html.slice(html.indexOf('const tokenize='),html.indexOf('const words='));
-const diff=runInNewContext(`${source}\ndiff`);
+const source=html.match(/<script>([\s\S]*?)<\/script>/u)[1];
+const historyKey='draft.history.v1';
+function createStorage(items=[]){
+ const data=new Map([[historyKey,JSON.stringify(items)]]);
+ return {data,getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,value),removeItem:key=>data.delete(key)};
+}
+function createApp(storage=createStorage()){
+ const elements=new Map();
+ const app={storage,confirmed:true,element:id=>elements.get(id)};
+ function node(tag){
+  let text='';
+  return {tag,children:[],value:'',hidden:false,attributes:{},
+   get textContent(){return text+this.children.map(child=>child.textContent).join('');},
+   set textContent(value){text=String(value);this.children=[];},
+   append(...children){this.children.push(...children.flatMap(child=>child.tag==='#fragment'?child.children:[child]));},
+   replaceChildren(...children){text='';this.children=[];this.append(...children);},
+   setAttribute(name,value){this.attributes[name]=value;},
+   focus(){app.focused=this;}
+  };
+ }
+ for(const match of html.matchAll(/<(\w+)\b([^>]*\bid="([^"]+)"[^>]*)>/gu)){
+  const element=node(match[1]);element.hidden=/\bhidden\b/u.test(match[2]);elements.set(match[3],element);
+ }
+ const document={getElementById:app.element,createElement:node,createDocumentFragment:()=>node('#fragment'),createTextNode:text=>{const result=node('#text');result.textContent=text;return result;}};
+ app.diff=runInNewContext(`${source}\ndiff`,{document,localStorage:storage,confirm:()=>app.confirmed});
+ app.click=id=>app.element(id).onclick();
+ app.compare=(original,revised='revision')=>{
+  if(app.element('editor').hidden)app.click('toggle');
+  app.element('original').value=original;app.element('revised').value=revised;app.click('update');
+ };
+ app.rows=()=>app.element('history-list').children;
+ return app;
+}
+const saved=storage=>JSON.parse(storage.data.get(historyKey)||'[]');
+const entry=(original,revised='revision')=>({original,revised,savedAt:Date.now()});
+const {diff}=createApp();
 const parts=(a,b)=>JSON.parse(JSON.stringify(diff(a,b).parts));
 
 function assertDrafts(original,revised){
@@ -50,4 +84,130 @@ test('large comparisons retain the responsive fallback and both drafts',()=>{
  assert.equal(result.coarse,true);
  assert.equal(result.parts.filter(p=>p.type==='del').length,1);
  assert.equal(result.parts.filter(p=>p.type==='ins').length,1);
+});
+
+test('history saves exact drafts and restores them after reload',()=>{
+ const storage=createStorage(),app=createApp(storage);
+ app.compare('Original\n  text','Revised\ttext');
+ assert.equal(saved(storage)[0].original,'Original\n  text');
+ assert.equal(saved(storage)[0].revised,'Revised\ttext');
+ const reloaded=createApp(storage);
+ reloaded.rows()[0].children[0].onclick();
+ assert.equal(reloaded.element('original').value,'Original\n  text');
+ assert.equal(reloaded.element('revised').value,'Revised\ttext');
+ assert.equal(reloaded.element('editor').hidden,false);
+ assert.equal(reloaded.element('wordcounts').textContent,'Original: 2 words → Revised: 2 words');
+ assert.equal(saved(storage).length,1);
+});
+
+test('history does not replace unsaved edits when restore is canceled',()=>{
+ const app=createApp(createStorage([entry('saved')]));
+ app.element('original').value='unsaved';app.confirmed=false;
+ app.rows()[0].children[0].onclick();
+ assert.equal(app.element('original').value,'unsaved');
+ app.confirmed=true;app.rows()[0].children[0].onclick();
+ assert.equal(app.element('original').value,'saved');
+});
+
+test('history skips empty comparisons, deduplicates, and retains the newest 20',()=>{
+ const app=createApp();
+ app.compare('','');assert.equal(saved(app.storage).length,0);
+ for(let i=0;i<22;i++)app.compare('original '+i,'revision '+i);
+ app.compare('original 5','revision 5');
+ assert.equal(saved(app.storage).length,20);
+ assert.equal(saved(app.storage)[0].original,'original 5');
+ assert.equal(saved(app.storage)[19].original,'original 2');
+ assert.equal(app.rows().length,20);
+});
+
+test('history saves and deletes against the latest storage from other tabs',()=>{
+ const storage=createStorage(),first=createApp(storage),second=createApp(storage);
+ first.compare('first');second.compare('second');
+ assert.deepEqual(saved(storage).map(item=>item.original),['second','first']);
+ first.rows()[0].children[1].onclick();
+ assert.deepEqual(saved(storage).map(item=>item.original),['second']);
+ second.rows()[0].children[1].onclick();
+ assert.deepEqual(saved(storage),[]);
+});
+
+test('clearing history removes other tabs’ entries and stale saves do not resurrect them',()=>{
+ const storage=createStorage(),first=createApp(storage),second=createApp(storage);
+ first.compare('first');second.compare('second');
+ first.click('clear-history');
+ assert.deepEqual(saved(storage),[]);
+ second.compare('third');
+ assert.deepEqual(saved(storage).map(item=>item.original),['third']);
+});
+
+test('clear history honors cancellation and keeps the current drafts',()=>{
+ const app=createApp();app.compare('current original','current revised');
+ app.confirmed=false;app.click('clear-history');
+ assert.equal(saved(app.storage).length,1);
+ app.confirmed=true;app.click('clear-history');
+ assert.equal(saved(app.storage).length,0);
+ assert.equal(app.rows().length,0);
+ assert.equal(app.element('original').value,'current original');
+ assert.equal(app.element('revised').value,'current revised');
+ assert.equal(app.element('history-empty').hidden,false);
+});
+
+test('oversized comparisons still render but are excluded from saved history',()=>{
+ const app=createApp();app.compare('small','draft');
+ app.compare('x'.repeat(100001),'y'.repeat(100000));
+ assert.equal(saved(app.storage).length,1);
+ assert.equal(saved(app.storage)[0].original,'small');
+ assert.equal(app.rows().length,1);
+ assert.match(app.element('history-note').textContent,/too large/u);
+ assert.equal(app.element('reading').textContent.length,200001);
+});
+
+test('history enforces the combined text budget on load and save',()=>{
+ const large=entry('x'.repeat(60000),'y'.repeat(60000));
+ const app=createApp(createStorage([entry('z'.repeat(200001)),large,{...large,original:'a'.repeat(60000)},entry('small')]));
+ assert.equal(app.rows().length,2);
+ app.compare('n'.repeat(50000),'m'.repeat(50000));
+ const items=saved(app.storage);
+ assert.equal(items.length,2);
+ assert.equal(items[0].original.length,50000);
+ assert.equal(items[1].original,'small');
+ assert.ok(items.reduce((size,item)=>size+item.original.length+item.revised.length,0)<=200000);
+ app.compare('a'.repeat(100000),'b'.repeat(100000));
+ assert.equal(saved(app.storage).length,1);
+ assert.equal(saved(app.storage)[0].original.length+saved(app.storage)[0].revised.length,200000);
+});
+
+test('invalid history is handled and valid entries remain usable',()=>{
+ for(const invalid of ['{broken','{}']){
+  const storage=createStorage();storage.data.set(historyKey,invalid);
+  const app=createApp(storage);
+  assert.equal(app.rows().length,0);
+  assert.match(app.element('history-note').textContent,/could not be loaded/u);
+  app.compare('recovered','text');assert.equal(saved(storage).length,1);
+ }
+ const reloaded=createApp(createStorage([null,entry(42),{...entry('invalid date'),savedAt:1e300},entry('valid')]));
+ assert.equal(reloaded.rows().length,1);
+ assert.match(reloaded.element('history-note').textContent,/could not be read/u);
+});
+
+test('storage failures do not stop comparisons, restores, or clears',()=>{
+ const storage=createStorage([entry('saved')]),app=createApp(storage);
+ storage.setItem=()=>{throw new Error('quota');};
+ app.compare('new','text');
+ assert.match(app.element('history-note').textContent,/could not be saved/u);
+ assert.equal(saved(storage)[0].original,'saved');
+ app.rows()[0].children[0].onclick();
+ assert.equal(app.element('original').value,'new');
+ storage.removeItem=()=>{throw new Error('blocked');};
+ app.click('clear-history');
+ assert.equal(app.rows().length,0);
+ assert.equal(saved(storage).length,1);
+ assert.match(app.element('history-note').textContent,/could not be saved/u);
+ const blocked=createStorage();
+ blocked.getItem=blocked.setItem=()=>{throw new Error('blocked');};
+ const offline=createApp(blocked);
+ assert.match(offline.element('history-note').textContent,/could not be loaded/u);
+ offline.compare('available','comparison');
+ assert.ok(offline.element('reading').textContent.includes('comparison'));
+ assert.equal(offline.rows().length,1);
+ assert.match(offline.element('history-note').textContent,/could not be saved/u);
 });

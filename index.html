@@ -18,7 +18,7 @@
 <details id="history" class="history">
  <summary id="history-summary">History (<span id="history-count">0</span>)</summary>
  <div class="history-content">
-  <div class="history-head"><span>Last 20 comparisons, saved on this device. Select one to restore it.</span><button id="clear-history" hidden>Clear history</button></div>
+  <div class="history-head"><span>Up to 20 recent comparisons, saved on this device. Select one to restore it.</span><button id="clear-history" hidden>Clear history</button></div>
   <p id="history-empty">No saved comparisons yet. Compare two drafts to save them here.</p>
   <ol id="history-list" aria-label="Saved comparisons"></ol>
  </div>
@@ -66,41 +66,52 @@ function diff(a,b){
  return {parts:groupChanges(out),coarse};
 }
 const words=s=>s.trim()?s.trim().split(/\s+/u).length:0;
-const HISTORY_KEY='draft.history.v1',HISTORY_LIMIT=20;
+const HISTORY_KEY='draft.history.v1',HISTORY_LIMIT=20,HISTORY_MAX_CHARS=200000;
 let historyItems=[];
 function historyNotice(message){
  $('history-note').textContent=message;
  $('history-note').hidden=!message;
 }
+function limitHistory(items){
+ const kept=[];let size=0;
+ for(const item of items){
+  const length=item.original.length+item.revised.length;
+  if(kept.length<HISTORY_LIMIT&&size+length<=HISTORY_MAX_CHARS){kept.push(item);size+=length;}
+ }
+ return kept;
+}
+function readHistory(){
+ const stored=localStorage.getItem(HISTORY_KEY),parsed=stored?JSON.parse(stored):[];
+ if(!Array.isArray(parsed))throw new Error('Invalid history');
+ const valid=parsed.filter(item=>item&&typeof item.original==='string'&&typeof item.revised==='string'&&(item.original||item.revised)&&Number.isFinite(item.savedAt)&&!Number.isNaN(new Date(item.savedAt).getTime()));
+ if(valid.length<parsed.length)historyNotice('Some saved comparisons could not be read.');
+ return limitHistory(valid);
+}
+function currentHistory(){
+ try{return readHistory();}catch{return historyItems;}
+}
 function loadHistory(){
- try{
-  const stored=localStorage.getItem(HISTORY_KEY);
-  if(stored){
-   const parsed=JSON.parse(stored);
-   if(!Array.isArray(parsed))throw new Error('Invalid history');
-   historyItems=parsed.filter(item=>item&&typeof item.original==='string'&&typeof item.revised==='string'&&(item.original||item.revised)&&Number.isFinite(item.savedAt)&&!Number.isNaN(new Date(item.savedAt).getTime())).slice(0,HISTORY_LIMIT);
-   if(historyItems.length<Math.min(parsed.length,HISTORY_LIMIT))historyNotice('Some saved comparisons could not be read.');
-  }
- }catch{
+ try{historyItems=readHistory();}catch{
   historyNotice('History could not be loaded on this device. You can still compare texts.');
  }
  renderHistory();
 }
 function setHistory(items){
- historyItems=items;
+ historyItems=limitHistory(items);
  try{
-  if(items.length)localStorage.setItem(HISTORY_KEY,JSON.stringify(items));
+  if(historyItems.length)localStorage.setItem(HISTORY_KEY,JSON.stringify(historyItems));
   else localStorage.removeItem(HISTORY_KEY);
   historyNotice('');
  }catch{
-  historyNotice('History changes could not be saved on this device. They will last only in this tab.');
+  historyNotice('History changes could not be saved on this device.');
  }
  renderHistory();
 }
 function saveComparison(){
  if(!applied.original&&!applied.revised)return;
- const others=historyItems.filter(item=>item.original!==applied.original||item.revised!==applied.revised);
- setHistory([{...applied,savedAt:Date.now()},...others].slice(0,HISTORY_LIMIT));
+ if(applied.original.length+applied.revised.length>HISTORY_MAX_CHARS){historyNotice('This comparison is too large to save in History.');return;}
+ const others=currentHistory().filter(item=>item.original!==applied.original||item.revised!==applied.revised);
+ setHistory([{...applied,savedAt:Date.now()},...others]);
 }
 function renderHistory(){
  const fragment=document.createDocumentFragment();
@@ -121,7 +132,7 @@ function renderHistory(){
   };
   remove.textContent='Delete';
   remove.setAttribute('aria-label',`Delete comparison: ${preview.textContent}`);
-  remove.onclick=()=>{setHistory(historyItems.filter(entry=>entry!==item));$('history-summary').focus();};
+  remove.onclick=()=>{setHistory(currentHistory().filter(entry=>entry.original!==item.original||entry.revised!==item.revised));$('history-summary').focus();};
   row.append(restore,remove);fragment.append(row);
  }
  $('history-list').replaceChildren(fragment);
