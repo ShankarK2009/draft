@@ -9,10 +9,23 @@ Open `index.html` in a modern browser. No installation, account, server, or buil
 1. Paste text into **Original text** and **Revised text**.
 2. Use **Swap texts** to switch the two drafts if needed, then select **Compare texts**.
 3. Use **Edit texts** to revise either version, or **Clear texts** to start over.
+4. Open **History** to restore a saved comparison, delete an entry, or clear saved history.
 
-Text is held only in the current browser tab. It is never uploaded or saved; refreshing or closing the page clears it. This page includes no analytics, external scripts, or preloaded drafts.
+The editors sit side by side on desktop and stack on smaller screens. Consecutive changed words are grouped into a single addition or deletion for easier reading.
+
+Selecting **Compare texts** saves the latest 20 distinct, nonempty comparisons in this browser's local storage, newest first. Saved history survives page reloads and can be restored from **History**. **Clear texts** clears the current drafts and keeps history; **Clear history** deletes saved comparisons and keeps the current drafts. Edits are saved only when you compare them.
+
+Your text is never uploaded. This page includes no analytics, external scripts, or preloaded drafts. History belongs to the current browser and site; deleting browser storage also deletes it. If storage is unavailable or full, comparisons still work and the page explains that history changes were not saved.
 
 For very large comparisons, the changed section is shown as a single replacement to keep the page responsive.
+
+## Checks
+
+Run the diff regression tests with Node.js (no installation needed):
+
+```sh
+node --test tests/diff.test.cjs
+```
 
 ## Hosting
 
