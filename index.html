@@ -28,7 +28,7 @@
 <script>
 const $=id=>document.getElementById(id);
 let applied={original:'',revised:''};
-const tokenize=s=>s.match(/\r\n|\n|[^\S\r\n]+|[\p{L}\p{N}\p{M}_]+|[^\s\p{L}\p{N}\p{M}_]/gu)||[];
+const tokenize=s=>s.match(/\r\n|[\r\n]|[^\S\r\n]+|[\p{L}\p{N}\p{M}_]+|[^\s\p{L}\p{N}\p{M}_]/gu)||[];
 function groupChanges(parts){
  const grouped=[];
  for(let i=0;i<parts.length;){

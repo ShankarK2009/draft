@@ -33,13 +33,13 @@ test('unchanged words and line breaks separate change groups',()=>{
 });
 
 test('both drafts survive grouping with exact whitespace, punctuation, and Unicode',()=>{
- const drafts=['','same','old words','new phrase',' a  b\tç!\r\nnext line\n',' a  d\té?\r\nnew row\n','你好 世界 👋','你好 地球 🌎','<script>alert("text")</script>'];
+ const drafts=['','same','old words','new phrase','a\rb',' a  b\tç!\r\nnext line\n',' a  d\té?\r\nnew row\n','你好 世界 👋','你好 地球 🌎','<script>alert("text")</script>'];
  for(const original of drafts)for(const revised of drafts)assertDrafts(original,revised);
 });
 
 test('mixed insertions and deletions preserve both drafts',()=>{
  let seed=42;
- const tokens=['one','two','three',' ','  ','\t','\n','\r\n','é','!'];
+ const tokens=['one','two','three',' ','  ','\t','\r','\n','\r\n','é','!'];
  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed;};
  const draft=()=>Array.from({length:random()%25},()=>tokens[random()%tokens.length]).join('');
  for(let i=0;i<300;i++)assertDrafts(draft(),draft());
