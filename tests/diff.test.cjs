@@ -319,3 +319,47 @@ test('storage failures preserve saved history while comparisons and restores sti
  assert.equal(offline.rows().length,0);
  assert.match(offline.element('history-note').textContent,/could not be saved/u);
 });
+
+test('example drafts are opt-in and are not saved until compared',async()=>{
+ const app=createApp();
+ assert.equal(app.element('original').value,'');
+ assert.equal(app.element('revised').value,'');
+ assert.equal(app.element('empty-reading').hidden,false);
+ app.click('empty-example');
+ assert.match(app.element('original').value,/one careful revision/u);
+ assert.match(app.element('revised').value,/one thoughtful revision/u);
+ assert.equal(saved(app.storage).length,0);
+ await app.click('update');
+ assert.equal(saved(app.storage).length,1);
+ assert.equal(app.element('empty-reading').hidden,true);
+ assert.ok(app.element('reading').children.some(child=>child.tag==='ins'));
+});
+
+test('loading an example honors cancellation and keeps history',async()=>{
+ const app=createApp();await app.compare('my draft','my revision');
+ app.click('toggle');app.element('original').value='unsaved words';
+ app.confirmed=false;app.click('example');
+ assert.equal(app.element('original').value,'unsaved words');
+ app.confirmed=true;app.click('example');
+ assert.match(app.element('original').value,/The best writing/u);
+ assert.equal(saved(app.storage).length,1);
+ app.click('cancel');app.click('toggle');
+ assert.equal(app.element('original').value,'my draft');
+});
+
+test('live word counts follow typing, swaps, restores, cancel and clear',async()=>{
+ const app=createApp();
+ app.element('original').value='one';app.element('original').oninput();
+ app.element('revised').value='two new words';app.element('revised').oninput();
+ assert.equal(app.element('original-count').textContent,'1 word');
+ assert.equal(app.element('revised-count').textContent,'3 words');
+ app.click('swap');
+ assert.equal(app.element('original-count').textContent,'3 words');
+ assert.equal(app.element('revised-count').textContent,'1 word');
+ await app.click('update');app.rows()[0].children[0].onclick();
+ assert.equal(app.element('original-count').textContent,'3 words');
+ app.click('reset');
+ assert.equal(app.element('original-count').textContent,'0 words');
+ assert.equal(app.element('revised-count').textContent,'0 words');
+ assert.equal(app.element('empty-reading').hidden,false);
+});

@@ -9,13 +9,13 @@ Brief authored from the repository; the user delegated the visual choice. Draft 
 One page, plain HTML/CSS/JavaScript. Green buttons, generic small sans headline, nested grey and white panels. Functional diff engine and robust bounded browser history. No assets, remote fonts, analytics, or preloaded drafts. Snapshot: `design/before.html`; before screenshots live in the external review artifact folder.
 
 Keep contract:
-- [ ] Name and slash wordmark.
-- [ ] Empty original/revised inputs, desktop columns and phone stacking.
-- [ ] Swap, compare, close/reopen editor, cancel edits, clear texts.
-- [ ] Exact inline additions/deletions, word counts, no-change and large-text states.
-- [ ] History restore, delete, clear, deduplication, limits, cross-tab synchronization and storage warnings.
-- [ ] Local-only operation, no external requests, no build step, offline use.
-- [ ] Existing regression tests, accessible labels, status announcements and keyboard focus.
+- [x] Name and slash wordmark.
+- [x] Empty original/revised inputs, desktop columns and phone stacking.
+- [x] Swap, compare, close/reopen editor, cancel edits, clear texts.
+- [x] Exact inline additions/deletions, word counts, no-change and large-text states.
+- [x] History restore, delete, clear, deduplication, limits, cross-tab synchronization and storage warnings.
+- [x] Local-only operation, no external requests, no build step, offline use.
+- [x] Existing regression tests, accessible labels, status announcements and keyboard focus.
 
 Lose: nested panels, rounded card styling, competing green/red highlights, repeated privacy copy, default-sized title. No page or feature removal, name change, or navigation destination change is planned.
 
@@ -61,7 +61,7 @@ A single workspace, with three steps: enter two drafts, read the comparison, rev
 
 ## Signature storyboard
 
-Technique: kinetic type, grounded in proofreading. Trigger: compare the two drafts. Frame 0: unchanged words are in place, new fragments sit 8px below and at 35% opacity. Frame 400: fragments settle toward the baseline. Frame 800: final marks at full opacity and normal position. Each fragment uses the same timing with no per-word stagger; long comparisons therefore remain readable immediately. Easing cubic-bezier(.16,1,.3,1); transform and opacity only. Reduced motion: animation disabled, complete final document. No loop, pointer follower, or scroll motion. Hover feedback is 150ms.
+Technique: proof ink appearing on the document. Trigger: compare the two drafts. Frame 0: unchanged and deleted words are in place; new fragments are at 35% opacity. Frame 400: the addition ink strengthens. Frame 800: final marks at full opacity. Each fragment uses the same timing with no per-word stagger. The planned 8px travel was removed so inline marks retain natural multi-line wrapping and exact text whitespace; only opacity animates. Easing cubic-bezier(.16,1,.3,1). Reduced motion: animation disabled, complete final document. No loop, pointer follower, or scroll motion. Hover feedback is 150ms.
 
 ## Voice
 
